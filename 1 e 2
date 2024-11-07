@@ -1,0 +1,128 @@
+class Vertice:
+    def __init__(self, val, nome):
+        self.val = val
+        self.nome = nome
+
+    def __str__(self):
+            return f'{self.val}'
+class Arestas:
+    def __init__(self,x:Vertice, y:Vertice, peso = None, ordenaçao = None):
+        self.x = x
+        self.y = y
+        self.aresta = (x, y)
+        self.peso = peso
+        self.ordenaçao = ordenaçao
+        
+    def __str__(self):
+        return f'({str(self.x)}, {str(self.y)})'
+    
+class Grafo:
+    def __init__(self, vertices):
+        self.dicionario = {}
+        self.vertices = vertices
+        for i in range(len(vertices)):
+               self.dicionario[vertices[i]] = []
+
+    def adjacent(self, x:Vertice, y:Vertice):
+        return y in self.dicionario[x]
+    
+    def neighbors(self, x:Vertice):
+        return self.dicionario[x]
+    
+    def add_vertex(self, x:Vertice):
+        if x not in self.vertices:
+            self.vertices.append(x)
+            self.dicionario[x] = []
+            return True
+        else:
+            return False
+            
+    def remove_vertex(self, x: Vertice):
+        if x in self.vertices:
+            del self.dicionario[x]
+            self.vertices.remove(x)
+            return True
+        else:
+            return False
+        
+    def add_edge(self, x:Vertice, y:Vertice):
+        if not y in self.dicionario[x]:
+            self.dicionario[x].append(y)
+            self.dicionario[y].append(x)
+            return True
+        else:
+            return False
+    def remove_edge(self, x:Vertice, y:Vertice):
+        if y in self.dicionario[x]:
+            self.dicionario[x].remove(y)    
+            self.dicionario[y].remove(x) 
+            return True
+        return False
+
+    def get_vertex_value(self, x:Vertice):
+        return x.val
+
+    def set_vertex_value(self, x:Vertice, v): 
+        x.val = v
+    
+    def __str__(self):
+        result = "Graph Representation:\n"
+        for vertice in self.vertices:
+            adjacencias = ", ".join([str(v) for v in self.dicionario[vertice]])
+            result += f"Vertex {vertice.nome} ({vertice.val}): [{adjacencias}]\n"
+        return result
+
+def bfs(graph, vertice_ini):
+    visitados = []
+    fila = [vertice_ini]
+    while fila:
+        a = fila.pop(0)
+        for i in graph.neighbors(a):
+            if i not in visitados:
+                fila.append(i)
+        visitados.append(a)
+
+def busca_prioridade(graph, value):
+    visitados = []
+    fila = [graph.vertices[0]]
+    while fila:
+        a = fila.pop(0)
+        if a.val == value:
+            return a
+        for i in graph.neighbors(a):
+            if i not in visitados:
+                fila.append(i)
+        visitados.append(a)    
+    return "Não há vertices com essa propriedade"
+
+    
+
+
+if __name__ == '__main__':
+    a = Vertice(1, 'a')
+    b = Vertice(2, 'b')
+    c = Vertice(3, 'c')
+    d = Vertice(4, 'd')
+    e = Vertice(5, 'e')
+    f = Vertice(6, 'e')
+    lista1 = [a, b, c]
+    grafinho = Grafo(lista1)
+    print(grafinho)
+    print(grafinho.adjacent(a, c))
+    print(grafinho.neighbors(a))
+    grafinho.add_vertex(d)
+    print(grafinho)
+    grafinho.add_vertex(e)
+    print(grafinho.add_vertex(d))
+    print(grafinho)
+    grafinho.add_edge(d, a)
+    grafinho.add_edge(d, b)
+    grafinho.add_edge(b, c)
+    grafinho.add_edge(a, e)
+    grafinho.add_edge(d, e)
+    print(grafinho)
+    grafinho.remove_edge(a, b)
+    print(grafinho)
+    print(grafinho.get_vertex_value(f))
+    print(grafinho.set_vertex_value(f, 19))
+    print(grafinho.get_vertex_value(f))
