@@ -1,0 +1,159 @@
+import random
+
+
+def generateMap(m: int, n: int, ground_water_ration = .2, water = '0', ground = '1' ):
+    r = int(m*n*ground_water_ration+.5)
+    newMap = [[water]*m for _ in range(n)]
+    coord = [(i, j) for i in range(n) for j in range(m)]
+    random.shuffle(coord)
+    for i, j in coord[:r]:
+        newMap[i][j] = ground
+    return newMap
+
+def save_map(map_s, path = 'new_map.txt'):
+    with open(path, 'wt') as f:
+        for row in map_s:
+            f.write("".join(map(str, row)))
+            f.write('\n')
+
+def print_map(map_p):
+    for row in map_p:
+        print("".join(map(str, row)))
+
+def ler_matriz(arquivo):
+    matriz = []
+    with open(arquivo, 'r') as arq:
+        for linha in arq:
+            col = []
+            for i in linha:
+                if i != '\n':
+                    col.append(int(i))
+            matriz.append(col)
+    return matriz
+
+def num_ilhas(matriz):
+    count = 0
+    def neighbours(l):
+        nei = []
+        directions = [(1,0), (0,1), (-1, 0), (0, -1), (1,1), (-1,1), (1,-1), (-1,-1)]
+        for dx, dy in directions:
+            nx,ny = l[0] + dx, l[1] +dy
+            if nx >=0 and nx < len(matriz) and ny >= 0 and ny < len(matriz[0]):
+                nei.append([l[0]+dx, l[1]+dy])
+        return nei
+    vistos = []
+    for i in range(len(matriz)):
+        for j in range(len(matriz[0])):
+            if [i,j] not in vistos and matriz[i][j] == '1':
+                stack = [[i, j]]
+                count += 1
+                vistos.append([i,j])
+                while stack:
+                    a = stack.pop()
+                    l = neighbours(a)
+                    for k in l:
+                        if k not in vistos:
+                            vistos.append(k)
+                            if matriz[k[0]][k[1]] == '1':
+                                stack.append(k)
+    return count
+def centroide(matriz):
+    def neighbours(l):
+        nei = []
+        directions = [(1,0), (0,1), (-1, 0), (0, -1), (1,1), (-1,1), (1,-1), (-1,-1)]
+        for dx, dy in directions:
+            nx,ny = l[0] + dx, l[1] +dy
+            if nx >=0 and nx < len(matriz) and ny >= 0 and ny < len(matriz[0]):
+                nei.append([l[0]+dx, l[1]+dy])
+        return nei
+    vistos = []
+    ilhas = []
+    for i in range(len(matriz)):
+        for j in range(len(matriz[0])):
+            if [i,j] not in vistos and matriz[i][j] == '1':
+                stack = [[i, j]]
+                ilha = []
+                vistos.append([i,j])
+                while stack:
+                    a = stack.pop()
+                    ilha.append(a)
+                    l = neighbours(a)
+                    for k in l:
+                        if k not in vistos:
+                            vistos.append(k)
+                            if matriz[k[0]][k[1]] == '1':
+                                stack.append(k)
+                ilhas.append(ilha)
+    ilha_min = [ilhas[0]]
+    ilha_max = [ilhas[0]]
+    for i in ilhas[1:]:
+        if len(i) < len(ilha_min[0]):
+            ilha_min = [i]
+        elif len(i) == len(ilha_min[0]):
+            ilha_min.append(i)
+        elif len(i) > len(ilha_max[0]):
+            ilha_max = [i]
+        elif len(i) == len(ilha_max[0]):
+            ilha_max.append(i)
+    
+    return ilha_min,ilha_max
+
+def lago(matriz):
+    def neighbours(l):
+        nei = []
+        directions = [(1,0), (0,1), (-1, 0), (0, -1), (1,1), (-1,1), (1,-1), (-1,-1)]
+        for dx, dy in directions:
+            nx,ny = l[0] + dx, l[1] +dy
+            if nx >=0 and nx < len(matriz) and ny >= 0 and ny < len(matriz[0]):
+                nei.append([l[0]+dx, l[1]+dy])
+        return nei
+    vistos = []
+    ilhas = []
+    for i in range(len(matriz)):
+        for j in range(len(matriz[0])):
+            if [i,j] not in vistos and matriz[i][j] == '0':
+                stack = [[i, j]]
+                ilha = []
+                vistos.append([i,j])
+                while stack:
+                    a = stack.pop()
+                    ilha.append(a)
+                    l = neighbours(a)
+                    for k in l:
+                        if k not in vistos:
+                            vistos.append(k)
+                            if matriz[k[0]][k[1]] == '0':
+                                stack.append(k)
+                ilhas.append(ilha)
+    lagos_validos = []
+    print(ilhas)
+    for k in ilhas:
+        add = True
+        for l in k:
+            if l[0] == 0 or l[1] == 0 or l[0] == len(matriz) -1 or l[1] == len(matriz[0]) -1:
+                add = False
+        if add:
+            lagos_validos.append(k)
+    
+    return lagos_validos
+    
+    
+
+if __name__ == '__main__':
+    m1 = generateMap(5, 4, 0.6, '0', '1')
+    print_map(m1)
+
+    m2 = generateMap(100, 120)
+    save_map(m2, 'test_map.txt')
+
+    mm = ler_matriz('test_map.txt')
+    print(num_ilhas(m1))
+    min,max = (centroide(m1))
+
+    print("ilhas minimas:")
+    for i in min:
+        print(i)
+    print("ilhas_maximas:")
+    for i in max:
+        print(i)
+    print('lagos:', lago(m1))
